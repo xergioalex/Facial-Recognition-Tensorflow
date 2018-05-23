@@ -1,0 +1,12 @@
+[uwsgi]
+chdir=/app/Facial-Recognition-Tensorflow
+module = wsgi
+master = true
+processes = 3
+workers=3
+
+socket=0.0.0.0:5000
+vacuum = true
+
+harakiri=30
+max-request=5000

@@ -1,0 +1,26 @@
+server {
+    listen 443 ssl spdy;
+    listen [::]:443 ssl spdy;
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/facenet.xergioalex.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/facenet.xergioalex.com/privkey.pem;
+    server_name facenet.xergioalex.com;
+
+    access_log /etc/nginx/logs/site.access;
+    error_log /etc/nginx/logs/site.error error;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass flask:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+}
+
+server {
+    listen   80;
+    server_name facenet.xergioalex.com;
+    rewrite ^/(.*)  https://facenet.xergioalex.com/$1 permanent;
+}

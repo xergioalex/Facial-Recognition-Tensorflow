@@ -1,0 +1,20 @@
+version: '3'
+services:
+  flask:
+    build:
+      context: ../../
+      dockerfile: docker/production/flask/Dockerfile
+    working_dir: /app/Facial-Recognition-Tensorflow
+    env_file:
+      - flask/.env
+    ports:
+      - "5000:5000"
+    command: sh -c 'python server.py'
+    restart: on-failure
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    env_file:
+      - nginx/.env

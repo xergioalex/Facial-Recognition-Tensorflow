@@ -1,0 +1,50 @@
+version: '3'
+services:
+  flask:
+    image: ${CONTAINER_REGISTRY_PREFIX}/${CONTAINER_REGISTRY_REPOSITORY_NAME}:${COMPOSE_PROJECT_NAME}-${SERVICE_FLASK_BUILD_NAME}-${SERVICE_FLASK_BUILD_TAG_CALC}
+    working_dir: /app/Facial-Recognition-Tensorflow
+    env_file:
+      - flask/.env
+    ports:
+      - "5000:5000"
+    command: sh -c 'ls -la /app && pip3 install -r requirements.txt && python server.py'
+    restart: on-failure
+    networks:
+      - facerecognition
+
+  nginx:
+    image: ${CONTAINER_REGISTRY_PREFIX}/${CONTAINER_REGISTRY_REPOSITORY_NAME}:${COMPOSE_PROJECT_NAME}-${SERVICE_NGINX_BUILD_NAME}-${SERVICE_NGINX_BUILD_TAG_CALC}
+    volumes:
+      - letsencrypt_certbot:/etc/letsencrypt
+      - nginx_logs:/etc/nginx/logs
+    links:
+      - flask
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    env_file:
+      - nginx/.env
+    restart: on-failure
+    networks:
+      - facerecognition
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - letsencrypt_certbot:/etc/letsencrypt
+      - letsencrypt_logs:/var/log/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    command: certonly --standalone --non-interactive --agree-tos --email=${SERVICE_CERTBOT_EMAIL} ${SERVICE_CERTBOT_DOMAINS}
+    networks:
+      - facerecognition
+
+volumes:
+  letsencrypt_certbot:
+  letsencrypt_logs:
+  nginx_logs:
+
+networks:
+  facerecognition:
