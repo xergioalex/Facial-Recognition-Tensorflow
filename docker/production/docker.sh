@@ -14,6 +14,13 @@ utils.load_environment_nginx
 
 # Menu options
 if [[ "$1" == "build" ]]; then
+    if [[ "$2" == "secure" ]]; then
+        utils.printer "Setting default.conf based on site.template.ssl..."
+        cp nginx/site.template.ssl nginx/default.conf
+    else
+        utils.printer "Setting default.conf based on site.template..."
+        cp nginx/site.template nginx/default.conf
+    fi
     utils.printer "Building images"
     docker-compose -f docker-compose.build.yaml build
 elif [[ "$1" == "push" ]]; then
